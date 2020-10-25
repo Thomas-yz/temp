@@ -254,13 +254,13 @@ public final class Analyser {
                 analyseExpression();
                 // 分号
                 expect(TokenType.Semicolon);
-                addSymbol(String.valueOf(nameToken.getValue()), false, false, nameToken.getStartPos());
+                addSymbol(String.valueOf(nameToken.getValue()), true, false, nameToken.getStartPos());
                 continue;
             }
             // 分号
             expect(TokenType.Semicolon);
             // 添加符号到符号表
-            addSymbol(String.valueOf(nameToken.getValue()), false, false, nameToken.getStartPos());
+            addSymbol(nameToken.getValueString(), false, false, nameToken.getStartPos());
         }
     }
 
@@ -288,11 +288,13 @@ public final class Analyser {
         else if(check(TokenType.Semicolon)) {
             // 空分析
             next();
+        } else {
+            throw new AnalyzeError(ErrorCode.InvalidInput, next().getStartPos());
         }
-        else{
-            // 都不是，摸了
-            throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
-        }
+//        else{
+//            // 都不是，摸了
+//            throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+//        }
     }
 
     /**
