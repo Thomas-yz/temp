@@ -250,6 +250,7 @@ public final class Analyser {
             }
             // 等于号
             if(check(TokenType.Equal)) {
+                next();
                 // 表达式
                 analyseExpression();
                 // 分号
@@ -337,13 +338,10 @@ public final class Analyser {
         // 分号
         expect(TokenType.Semicolon);
 
+        initSymbol(nameToken.getValueString(),nameToken.getStartPos());
 
-        if(symbolTable.get(nameToken.getValue()).isInitialized()){
-            instructions.add(new Instruction(Operation.STO, getOffset(nameToken.getValueString(), nameToken.getStartPos())));
-        } else {
-            initSymbol(nameToken.getValueString(),nameToken.getStartPos());
-            instructions.add(new Instruction(Operation.STO, getOffset(nameToken.getValueString(), nameToken.getStartPos())));
-        }
+        var offset = getOffset(nameToken.getValueString(), nameToken.getStartPos());
+        instructions.add(new Instruction(Operation.STO, offset));
     }
 
     /**
