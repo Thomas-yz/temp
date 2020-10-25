@@ -144,7 +144,7 @@ public final class Analyser {
      * @param curPos 当前位置（报错用）
      * @throws AnalyzeError 如果未定义则抛异常
      */
-    private void declareSymbol(String name, Pos curPos) throws AnalyzeError {
+    private void initSymbol(String name, Pos curPos) throws AnalyzeError {
         var entry = this.symbolTable.get(name);
         if (entry == null) {
             throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
@@ -288,13 +288,14 @@ public final class Analyser {
         else if(check(TokenType.Semicolon)) {
             // 空分析
             next();
-        } else {
-            throw new AnalyzeError(ErrorCode.InvalidInput, next().getStartPos());
         }
-//        else{
-//            // 都不是，摸了
-//            throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+//        else {
+//            throw new AnalyzeError(ErrorCode.InvalidInput, next().getStartPos());
 //        }
+        else{
+            // 都不是，摸了
+            throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+        }
     }
 
     /**
@@ -340,7 +341,8 @@ public final class Analyser {
         if(symbolTable.get(nameToken.getValue()).isInitialized()){
             instructions.add(new Instruction(Operation.STO, getOffset(nameToken.getValueString(), nameToken.getStartPos())));
         } else {
-            declareSymbol(nameToken.getValueString(),nameToken.getStartPos());
+            initSymbol(nameToken.getValueString(),nameToken.getStartPos());
+            instructions.add(new Instruction(Operation.STO, getOffset(nameToken.getValueString(), nameToken.getStartPos())));
         }
     }
 
