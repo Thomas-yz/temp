@@ -233,7 +233,7 @@ public final class Analyser {
             expect(TokenType.Semicolon);
             // 添加符号到符号表
             addSymbol(String.valueOf(nameToken.getValue()), true, true, nameToken.getStartPos());
-            instructions.add(new Instruction(Operation.LIT, 0));
+            instructions.add(new Instruction(Operation.LIT, value));
         }
     }
 
@@ -379,11 +379,11 @@ public final class Analyser {
         //因子分析
         analyseFactor();
         while (check(TokenType.Mult) || check(TokenType.Div)) {
-            Token token = next();
+            Token op = next();
             analyseFactor();
-            if (token.getTokenType() == TokenType.Mult) {
+            if (op.getTokenType() == TokenType.Mult) {
                 instructions.add(new Instruction(Operation.MUL));
-            } else if (token.getTokenType() == TokenType.Div) {
+            } else if (op.getTokenType() == TokenType.Div) {
                 instructions.add(new Instruction(Operation.DIV));
             }
         }
@@ -405,21 +405,20 @@ public final class Analyser {
 
         if (check(TokenType.Ident)) {
             var nameToken = next();
-            Object key = nameToken.getValue();
+            String key = nameToken.getValueString();
             if(!symbolTable.containsKey(key)) {
                 //没定义，摸了
                 throw new AnalyzeError(ErrorCode.NotDeclared, nameToken.getStartPos());
             } else if(!symbolTable.get(key).isInitialized()) {
                 //没赋值，摸了
                 throw new AnalyzeError(ErrorCode.NotInitialized, nameToken.getStartPos());
-            } else {
-                int offset = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.LOD,offset));
             }
+            var offset = getOffset(key,nameToken.getStartPos());
+            instructions.add(new Instruction(Operation.LOD,offset));
         } else if (check(TokenType.Uint)) {
             var nameToken = next();
-            int valInt = Integer.parseInt(nameToken.getValueString());
-            instructions.add(new Instruction(Operation.LIT, valInt));
+            int value = Integer.parseInt(nameToken.getValueString());
+            instructions.add(new Instruction(Operation.LIT, value));
         } else if (check(TokenType.LParen)) {
             // 表达式分析
             next();
